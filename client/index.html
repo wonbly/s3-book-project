@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Mood Flower - 도서 등록</title>
+    <style>
+        :root { --primary-color: #ff85a2; --bg-color: #f8f9fa; }
+        body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        h2 { color: #333; text-align: center; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #666; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .btn-submit { background-color: var(--primary-color); color: white; }
+        .btn-submit:hover { background-color: #ff6384; }
+        .btn-list { background-color: #eee; color: #555; }
+        .btn-list:hover { background-color: #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌸 도서 등록하기</h2>
+    <form id="uploadForm">
+        <div class="form-group">
+            <label>도서 제목</label>
+            <input type="text" id="title" placeholder="제목을 입력하세요">
+        </div>
+        <div class="form-group">
+            <label>가격 (KRW)</label>
+            <input type="number" id="price" placeholder="가격을 입력하세요">
+        </div>
+        <div class="form-group">
+            <label>도서 이미지</label>
+            <input type="file" id="file" accept="image/*">
+        </div>
+        <button type="button" class="btn-submit" onclick="uploadBook()">등록 완료</button>
+        <button type="button" class="btn-list" onclick="location.href='list.html'">도서 목록 확인하기</button>
+    </form>
+</div>
+
+<script>
+    async function uploadBook() {
+        const title = document.getElementById('title').value;
+        const price = document.getElementById('price').value;
+        const file = document.getElementById('file').files[0];
+
+        if (!title || !price || !file) {
+            alert('정보를 모두 입력해주세요!');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('price', price);
+        formData.append('file', file);
+
+        try {
+            const response = await fetch('http://localhost:8080/api/books/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('서버 에러');
+
+            alert('도서가 등록되었습니다! S3와 DB에 안전하게 저장됐어요. ✨');
+            document.getElementById('uploadForm').reset();
+        } catch (error) {
+            console.error(error);
+            alert('등록에 실패했어요. 콘솔을 확인해주세요!');
+        }
+    }
+</script>
+</body>
+</html>

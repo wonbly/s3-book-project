@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Mood Flower - 도서 목록</title>
+    <style>
+        /* 1. index.html과 동일한 디자인 변수 및 바디 스타일 */
+        :root { --primary-color: #ff85a2; --bg-color: #f8f9fa; }
+        body { 
+            font-family: 'Pretendard', sans-serif; 
+            background-color: var(--bg-color); 
+            margin: 0; 
+            padding: 2rem 0; /* 상하 여백만 부여 */
+            display: flex; 
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+            width: 90%; 
+            max-width: 900px; /* 목록이라 좀 더 넓게 설정 */
+        }
+
+        h2 { color: #333; text-align: center; margin-bottom: 1.5rem; }
+
+        /* 2. 그리드 레이아웃 */
+        .book-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            gap: 1.5rem; 
+        }
+
+        /* 3. 카드 디자인 (index.html의 인풋창 느낌을 살린 라운딩) */
+        .book-card { 
+            background: #fff; 
+            border: 1px solid #eee; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .book-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+
+        .book-card img { 
+            width: 100%; 
+            height: 300px; 
+            object-fit: contain; 
+            background: #fdfdfd; 
+            padding: 10px;
+            box-sizing: border-box;
+            border-bottom: 1px solid #f8f8f8;
+        }
+
+        .book-info { padding: 1rem; text-align: center; }
+        .book-title { font-size: 1rem; font-weight: bold; color: #444; margin-bottom: 0.5rem; }
+        .book-price { color: var(--primary-color); font-weight: bold; font-size: 1.1rem; }
+
+        /* 4. 하단 버튼 (index.html의 btn-list 스타일) */
+        .nav-center { margin-top: 2rem; width: 100%; max-width: 400px; }
+        .btn-home { 
+            display: block; width: 100%; padding: 1rem; 
+            border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; transition: 0.3s; 
+            background-color: #eee; color: #555; text-align: center;
+            text-decoration: none; box-sizing: border-box;
+        }
+        .btn-home:hover { background-color: #ddd; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>💐 도서 목록 확인</h2>
+    <div id="bookList" class="book-grid">
+        </div>
+</div>
+
+<div class="nav-center">
+    <a href="index.html" class="btn-home">← 도서 등록하러 가기</a>
+</div>
+
+<script>
+    window.onload = async function() {
+        try {
+            const response = await fetch('http://localhost:8080/api/books');
+            const books = await response.json();
+            const listDiv = document.getElementById('bookList');
+            
+            if (books.length === 0) {
+                listDiv.innerHTML = "<p style='text-align:center; grid-column: 1/-1; color:#999;'>등록된 도서가 없습니다. 🌸</p>";
+                return;
+            }
+
+            books.forEach(book => {
+                const card = `
+                    <div class="book-card">
+                        <img src="${book.imageUrl}" alt="${book.title}" onerror="this.src='https://via.placeholder.com/250x300?text=No+Image'">
+                        <div class="book-info">
+                            <div class="book-title">${book.title}</div>
+                            <div class="book-price">${book.price.toLocaleString()}원</div>
+                        </div>
+                    </div>
+                `;
+                listDiv.innerHTML += card;
+            });
+        } catch (error) {
+            console.error(error);
+            alert('목록을 불러오는 데 실패했습니다.');
+        }
+    };
+</script>
+</body>
+</html>
